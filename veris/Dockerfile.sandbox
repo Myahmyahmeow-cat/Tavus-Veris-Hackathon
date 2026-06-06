@@ -1,0 +1,19 @@
+ARG VERIS_BASE
+FROM ${VERIS_BASE}
+
+# Install Python dependencies
+COPY requirements.txt /agent/
+WORKDIR /agent
+RUN pip install -r requirements.txt
+
+# Copy agent code
+COPY config.py /agent/
+COPY prompts.py /agent/
+COPY agent_server.py /agent/
+COPY causal_frame.py /agent/
+COPY prober_a.py /agent/
+COPY prober_b.py /agent/
+COPY grader.py /agent/
+COPY .env /agent/
+
+WORKDIR /app

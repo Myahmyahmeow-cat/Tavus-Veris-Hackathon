@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+.git/
+session_logs/
+.env.example
+README.md
