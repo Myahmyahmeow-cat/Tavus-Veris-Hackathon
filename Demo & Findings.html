@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Causal Interview Agent — Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #12121a;
+  --border: #1e1e2e;
+  --text: #e2e2e8;
+  --text-dim: #8888a0;
+  --accent-a: #4ecdc4;
+  --accent-b: #ff6b6b;
+  --accent-gold: #f0c674;
+  --accent-blue: #7aa2f7;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+section {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px 80px;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+}
+
+h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 3.8rem;
+  line-height: 1.15;
+  margin-bottom: 24px;
+}
+
+h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.4rem;
+  margin-bottom: 20px;
+}
+
+h3 {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+
+p, li {
+  font-size: 1.15rem;
+  color: var(--text-dim);
+  max-width: 700px;
+}
+
+.subtitle {
+  font-size: 1.4rem;
+  color: var(--text-dim);
+  max-width: 650px;
+  margin-bottom: 40px;
+}
+
+.tag {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.tag-a { background: rgba(78,205,196,0.15); color: var(--accent-a); border: 1px solid rgba(78,205,196,0.3); }
+.tag-b { background: rgba(255,107,107,0.15); color: var(--accent-b); border: 1px solid rgba(255,107,107,0.3); }
+.tag-finding { background: rgba(240,198,116,0.15); color: var(--accent-gold); border: 1px solid rgba(240,198,116,0.3); }
+
+.highlight-a { color: var(--accent-a); }
+.highlight-b { color: var(--accent-b); }
+.highlight-gold { color: var(--accent-gold); }
+
+/* ── Section 1: Title ── */
+.hero { position: relative; overflow: hidden; }
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -200px; right: -200px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(78,205,196,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.sponsors {
+  display: flex;
+  gap: 16px;
+  margin-top: 40px;
+  flex-wrap: wrap;
+}
+.sponsor-badge {
+  padding: 8px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+
+/* ── Comparison cards ── */
+.comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-top: 32px;
+  max-width: 1100px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px;
+  position: relative;
+}
+
+.card-a { border-top: 3px solid var(--accent-a); }
+.card-b { border-top: 3px solid var(--accent-b); }
+
+.card h3 { margin-bottom: 16px; }
+
+.probe-text {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.95rem;
+  color: var(--text);
+  background: rgba(255,255,255,0.04);
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 3px solid var(--border);
+  margin: 12px 0;
+  line-height: 1.5;
+}
+
+.card-a .probe-text { border-left-color: var(--accent-a); }
+.card-b .probe-text { border-left-color: var(--accent-b); }
+
+.label {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+/* ── Stimulus bar ── */
+.stimulus {
+  background: rgba(122,162,247,0.08);
+  border: 1px solid rgba(122,162,247,0.2);
+  border-radius: 10px;
+  padding: 24px 32px;
+  margin-bottom: 32px;
+  max-width: 1100px;
+}
+
+.stimulus p {
+  color: var(--accent-blue);
+  font-size: 1.05rem;
+  max-width: 100%;
+  font-style: italic;
+}
+
+.stimulus .label { color: rgba(122,162,247,0.6); }
+
+/* ── Matrix table ── */
+.matrix {
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-size: 0.95rem;
+}
+.matrix th, .matrix td {
+  padding: 14px 20px;
+  text-align: left;
+  border: 1px solid var(--border);
+}
+.matrix th {
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+}
+.matrix td { color: var(--text-dim); }
+.matrix .action-cell { color: var(--accent-a); font-weight: 500; }
+
+/* ── Findings grid ── */
+.findings {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 24px;
+  max-width: 1100px;
+}
+
+.finding-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 28px;
+}
+
+.finding-card h3 {
+  color: var(--accent-gold);
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+
+.finding-card p {
+  font-size: 1rem;
+  max-width: 100%;
+}
+
+.stat {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.8rem;
+  color: var(--accent-a);
+  margin-bottom: 4px;
+}
+
+/* ── Architecture ── */
+.arch-flow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.arch-node {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 24px;
+  text-align: center;
+  min-width: 140px;
+}
+
+.arch-node.active { border-color: var(--accent-a); }
+.arch-node .node-label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+.arch-node .node-name {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.arch-arrow {
+  color: var(--text-dim);
+  font-size: 1.4rem;
+}
+
+/* ── Section counter ── */
+.section-num {
+  font-family: 'DM Serif Display', serif;
+  font-size: 8rem;
+  color: rgba(255,255,255,0.03);
+  position: absolute;
+  top: 40px;
+  right: 60px;
+  line-height: 1;
+}
+
+/* ── Closing ── */
+.closing-quote {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.2rem;
+  line-height: 1.4;
+  max-width: 750px;
+  color: var(--text);
+}
+
+.closing-quote span { color: var(--accent-a); }
+
+.scroll-hint {
+  position: fixed;
+  bottom: 20px;
+  right: 30px;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  opacity: 0.5;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ SLIDE 1: TITLE ═══ -->
+<section class="hero">
+  <span class="section-num">01</span>
+  <span class="tag tag-finding">AI Tinkerers NYC — Emotionally Intelligent AI Hackathon</span>
+  <h1>Your AI Interviewer<br>Shouldn't Just<br><span class="highlight-a">Feel Your Pain.</span></h1>
+  <p class="subtitle">It should understand what you haven't explained yet — and know exactly when to ask.</p>
+  <p style="color: var(--text-dim); font-size: 1rem; margin-bottom: 8px;">A causal reasoning framework for voice AI that uses emotion as a diagnostic signal, not just a styling knob.</p>
+  <div class="sponsors">
+    <div class="sponsor-badge">Tavus CVI</div>
+    <div class="sponsor-badge">Raven-1 Perception</div>
+    <div class="sponsor-badge">Claude Haiku</div>
+    <div class="sponsor-badge">Veris AI</div>
+  </div>
+</section>
+
+<!-- ═══ SLIDE 2: THE PROBLEM ═══ -->
+<section>
+  <span class="section-num">02</span>
+  <span class="tag tag-b">THE PROBLEM</span>
+  <h2>Emotion detection without<br>structural analysis is just<br><span class="highlight-b">expensive empathy.</span></h2>
+  <p class="subtitle">Today's emotionally intelligent agents detect that you're frustrated and say "I hear you." They detect enthusiasm and match your energy. But they never ask: <em>did this person actually explain why?</em></p>
+  <div class="findings" style="margin-top: 32px;">
+    <div class="finding-card">
+      <h3>Standard Practice</h3>
+      <p>Detect emotion → Adjust tone<br><br>"You sound frustrated → I'll be gentler."<br>"Your answer seems thin → Can you tell me more?"</p>
+    </div>
+    <div class="finding-card">
+      <h3>Our Approach</h3>
+      <p>Detect emotion × Analyze causal structure → Precise intervention<br><br>"You sound done talking, but you never explained <em>why</em> it failed → Probe for mechanism."</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SLIDE 3: ARCHITECTURE ═══ -->
+<section>
+  <span class="section-num">03</span>
+  <span class="tag tag-a">ARCHITECTURE</span>
+  <h2>Two channels, one decision.</h2>
+  <p style="margin-bottom: 32px; color: var(--text-dim);">Emotional perception and causal frame analysis run in parallel. The agent combines both signals to determine <em>what</em> to probe and <em>when</em>.</p>
+  <div class="arch-flow">
+    <div class="arch-node">
+      <div class="node-label">Input</div>
+      <div class="node-name">Participant speaks</div>
+    </div>
+    <span class="arch-arrow">→</span>
+    <div class="arch-node active">
+      <div class="node-label">Channel 1</div>
+      <div class="node-name" style="color: var(--accent-a);">Raven-1 Perception</div>
+    </div>
+    <span class="arch-arrow">→</span>
+    <div class="arch-node" style="border-color: var(--accent-gold);">
+      <div class="node-label">Channel 2</div>
+      <div class="node-name" style="color: var(--accent-gold);">Causal Frame Analysis</div>
+    </div>
+    <span class="arch-arrow">→</span>
+    <div class="arch-node active">
+      <div class="node-label">Decision</div>
+      <div class="node-name">Probe Policy</div>
+    </div>
+    <span class="arch-arrow">→</span>
+    <div class="arch-node">
+      <div class="node-label">Output</div>
+      <div class="node-name">Targeted probe</div>
+    </div>
+  </div>
+  <table class="matrix" style="margin-top: 40px;">
+    <tr><th>Affect</th><th>Explanation</th><th>Action</th></tr>
+    <tr><td>Final + confident</td><td>Complete</td><td>Acknowledge, advance</td></tr>
+    <tr><td>Final + confident</td><td>Incomplete</td><td class="action-cell">Probe the missing slot ← key case</td></tr>
+    <tr><td>Tentative</td><td>Incomplete</td><td>Wait — they're still building</td></tr>
+    <tr><td>Tentative</td><td>Complete</td><td>Gently check: "anything to add?"</td></tr>
+  </table>
+</section>
+
+<!-- ═══ SLIDE 4: CASE 1 — ZENDESK ═══ -->
+<section>
+  <span class="section-num">04</span>
+  <span class="tag tag-finding">KEY CASE — FRUSTRATED + BARE ASSERTION</span>
+  <h2>The Zendesk Migration</h2>
+  <div class="stimulus">
+    <div class="label">Respondent (frustrated, avoidant):</div>
+    <p>"The Zendesk migration was a nightmare. Resolution times doubled overnight and customer sat scores tanked for a quarter. Leadership was breathing down everyone's neck. I don't even like thinking about it."</p>
+  </div>
+  <div class="comparison">
+    <div class="card card-a">
+      <span class="tag tag-a">CONDITION A — CAUSAL FRAME</span>
+      <div class="label">Agent's probe:</div>
+      <div class="probe-text">"What do you think went wrong there?"</div>
+      <p style="font-size: 0.95rem;">Acknowledged the emotion, then probed directly for <strong style="color: var(--accent-a);">mechanism</strong> — <em>why</em> it failed.</p>
+    </div>
+    <div class="card card-b">
+      <span class="tag tag-b">CONDITION B — STANDARD PRACTICE</span>
+      <div class="label">Agent's probe:</div>
+      <div class="probe-text">"What happened after that first quarter? Did things improve?"</div>
+      <p style="font-size: 0.95rem;">Empathized generously, then asked about <strong style="color: var(--accent-b);">timeline</strong> — what happened next. Never asked <em>why</em>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SLIDE 5: CASE 2 — NOTION ═══ -->
+<section>
+  <span class="section-num">05</span>
+  <span class="tag tag-finding">KEY CASE — ENTHUSIASTIC + STRUCTURALLY EMPTY</span>
+  <h2>The Notion Enthusiasm</h2>
+  <div class="stimulus">
+    <div class="label">Respondent (enthusiastic, fast-paced):</div>
+    <p>"Oh my god, Notion changed everything for us. The whole team is obsessed with it. It's the best tool decision we made all year. I can't say enough good things about it."</p>
+  </div>
+  <div class="comparison">
+    <div class="card card-a">
+      <span class="tag tag-a">CONDITION A — CAUSAL FRAME</span>
+      <div class="label">Agent's probe:</div>
+      <div class="probe-text">"What was the main problem you were trying to solve, and how specifically has it changed the way your team works day to day?"</div>
+      <p style="font-size: 0.95rem;">Saw through enthusiasm. Demanded both <strong style="color: var(--accent-a);">the problem</strong> and <strong style="color: var(--accent-a);">specific mechanism of change</strong>.</p>
+    </div>
+    <div class="card card-b">
+      <span class="tag tag-b">CONDITION B — STANDARD PRACTICE</span>
+      <div class="label">Agent's probe:</div>
+      <div class="probe-text">"What was the problem you were trying to solve before you brought it in?"</div>
+      <p style="font-size: 0.95rem;">Matched the positive energy. Asked for the problem but <strong style="color: var(--accent-b);">not the mechanism</strong>. Answerable with another vague statement.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SLIDE 6: RESULTS ═══ -->
+<section>
+  <span class="section-num">06</span>
+  <span class="tag tag-finding">RESULTS</span>
+  <h2>What the data shows.</h2>
+  <div class="findings">
+    <div class="finding-card">
+      <div class="stat">6/6</div>
+      <h3>Structural Probes</h3>
+      <p>Condition A asked structural "why" questions on every stimulus — targeting the specific causal gap.</p>
+    </div>
+    <div class="finding-card">
+      <div class="stat" style="color: var(--accent-b);">0/6</div>
+      <h3>Structural Probes</h3>
+      <p>Condition B asked temporal "what happened next" questions — never targeting the causal gap.</p>
+    </div>
+    <div class="finding-card">
+      <h3>Perception Sensitivity</h3>
+      <p>A detected 1 tentative delivery (Asana). B detected 0 — categorized everything as emotionally final despite verbal hedging.</p>
+    </div>
+    <div class="finding-card">
+      <h3>Emotion Contradiction</h3>
+      <p>A identified when confident tone masked an incomplete explanation. B saw no contradictions between tone and completeness.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SLIDE 7: CLOSING ═══ -->
+<section>
+  <span class="section-num">07</span>
+  <p class="closing-quote">
+    Emotionally intelligent AI shouldn't just <span>mirror how you feel.</span><br><br>
+    It should understand <span>what you haven't explained yet</span> — and know exactly when to ask.
+  </p>
+  <p style="margin-top: 40px; color: var(--text-dim); font-size: 1rem;">
+    Built by Jeffrey Lin — AI Tinkerers NYC Hackathon, June 2026<br>
+    Tavus CVI · Raven-1 · Claude · Veris AI
+  </p>
+</section>
+
+<div class="scroll-hint">scroll ↓</div>
+
+</body>
+</html>
